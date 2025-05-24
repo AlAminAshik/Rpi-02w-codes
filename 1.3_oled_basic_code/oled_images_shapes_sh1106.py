@@ -15,25 +15,42 @@ import time										#for adding delay
 # initialize i2c display
 device = sh1106(i2c(port=1, address=0x3c)) 		#displaytype(primary i2c port and address) 
 
-# create blank canvas
-image = Image.new("1", device.size)
-draw = ImageDraw.Draw(image)
-
 # load fonts
 fontSmall = ImageFont.load_default()
 fontLarge = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",20)
 
-# Draw shapes
-draw.rectangle((0,0,127,63), outline=255, fill=0)
-draw.ellipse((5,5,25,25), outline=255, fill=0)
-draw.line((0,32,128,32), fill=255)
+i = 0
+direction = 1
 
-#Draw texts (texts should be after shapes)
-draw.text((30,8), "Small text", font=fontSmall, fill=255)
-draw.text((10,38), "Big text", font=fontLarge, fill=255)
+while True:
+    # create blank canvas
+    image = Image.new("1", device.size)
+    draw = ImageDraw.Draw(image)
+    
+    # Draw shapes
+    draw.rectangle((0,0,127,63), outline=255, fill=0)
+    draw.ellipse((5,5,25,25), outline=255, fill=0)
 
-#Display image
-device.display(image)
-
-#show for 5 seconds
-time.sleep(5)
+    #Draw texts (texts should be after shapes)
+    draw.text((30,8), "Small text", font=fontSmall, fill=255)
+    draw.text((10,38), "Big text", font=fontLarge, fill=255)
+    
+    #calculate line positions
+    x1 = 32-i
+    x2 = 32+i
+    x3 = 96-i
+    x4 = 96+i
+    
+    #draw two bouncing horizontal lines
+    draw.line((x1,32,x2,32), fill=255)
+    draw.line((x3,32,x4,32), fill=255)
+    
+    #Display image
+    device.display(image)
+    
+    #update motion
+    i += direction
+    if i>=32 or i<=0:
+        direction *= -1	#reverse direction
+        
+    time.sleep(0.0001)
